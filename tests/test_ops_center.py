@@ -34,7 +34,7 @@ def _scored(secret, origin, profile=None):
 def test_ops_center_with_no_history_shows_empty_state(tmp_path):
     output = tmp_path / "ops.html"
     render_ops_center(tmp_path / "no_history", output)
-    html = output.read_text()
+    html = output.read_text(encoding="utf-8")
     assert "NO SCAN HISTORY" in html
 
     parser = _StrictParser()
@@ -48,7 +48,7 @@ def test_ops_center_renders_valid_html_with_history(tmp_path):
 
     output = tmp_path / "ops.html"
     render_ops_center(history_dir, output)
-    html = output.read_text()
+    html = output.read_text(encoding="utf-8")
 
     assert "repo-a" in html
     parser = _StrictParser()
@@ -63,7 +63,7 @@ def test_ops_center_groups_by_target(tmp_path):
 
     output = tmp_path / "ops.html"
     render_ops_center(history_dir, output)
-    html = output.read_text()
+    html = output.read_text(encoding="utf-8")
 
     assert "repo-a" in html
     assert "repo-b" in html
@@ -77,7 +77,7 @@ def test_ops_center_shows_new_finding_diff(tmp_path):
 
     output = tmp_path / "ops.html"
     render_ops_center(history_dir, output)
-    html = output.read_text()
+    html = output.read_text(encoding="utf-8")
 
     assert "+1 new" in html
 
@@ -88,7 +88,7 @@ def test_ops_center_escapes_target_label(tmp_path):
 
     output = tmp_path / "ops.html"
     render_ops_center(history_dir, output)
-    html = output.read_text()
+    html = output.read_text(encoding="utf-8")
 
     assert "<script>alert(1)</script>" not in html
     assert "&lt;script&gt;" in html

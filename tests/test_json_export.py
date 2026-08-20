@@ -20,7 +20,7 @@ def test_json_redacts_by_default(tmp_path):
     output = tmp_path / "report.json"
     export_json(scored, output)  # reveal defaults to False
 
-    raw = output.read_text()
+    raw = output.read_text(encoding="utf-8")
     assert secret not in raw
 
     data = json.loads(raw)
@@ -35,7 +35,7 @@ def test_json_reveals_when_opted_in(tmp_path):
     output = tmp_path / "report.json"
     export_json(scored, output, reveal=True)
 
-    data = json.loads(output.read_text())
+    data = json.loads(output.read_text(encoding="utf-8"))
     assert data["redacted"] is False
     assert data["findings"][0]["matched_text"] == secret
 
@@ -43,6 +43,6 @@ def test_json_reveals_when_opted_in(tmp_path):
 def test_json_handles_empty_findings(tmp_path):
     output = tmp_path / "report_empty.json"
     export_json([], output)
-    data = json.loads(output.read_text())
+    data = json.loads(output.read_text(encoding="utf-8"))
     assert data["total_findings"] == 0
     assert data["findings"] == []

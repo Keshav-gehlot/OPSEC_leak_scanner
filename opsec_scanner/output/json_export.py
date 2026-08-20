@@ -47,5 +47,5 @@ def export_json(scored: list[ScoredFinding], output_path: str | Path, reveal: bo
         ],
     }
 
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2, default=str)

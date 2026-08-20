@@ -43,7 +43,7 @@ def load_allowlist(path: Path | str | None = None) -> Allowlist:
     p = Path(path) if path else DEFAULT_ALLOWLIST_PATH
     if not p.exists():
         return Allowlist()
-    with open(p, "r") as f:
+    with open(p, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
     return Allowlist(
         ignore_patterns=raw.get("ignore_patterns", []),
@@ -73,7 +73,7 @@ class ScannedMatch:
 
 def load_rules(path: Path | str | None = None) -> list[Rule]:
     p = Path(path) if path else DEFAULT_RULES_PATH
-    with open(p, "r") as f:
+    with open(p, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f)
 
     rules = []

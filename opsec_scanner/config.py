@@ -48,7 +48,7 @@ def load_target_profile(path: Path | str | None = None) -> TargetProfile:
         )
         sys.exit(1)
 
-    with open(p, "r") as f:
+    with open(p, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
 
     coords = raw.get("home_coordinates")
@@ -74,6 +74,6 @@ def write_template_profile(path: Path | str = DEFAULT_PROFILE_PATH) -> None:
         "home_coordinates": None,  # e.g. [37.7749, -122.4194] — optional, enables GPS proximity scoring
     }
     p = Path(path)
-    with open(p, "w") as f:
+    with open(p, "w", encoding="utf-8") as f:
         yaml.safe_dump(template, f, sort_keys=False)
     print(f"[config] Template profile written to '{p}'. Edit it, then re-run the scan.")

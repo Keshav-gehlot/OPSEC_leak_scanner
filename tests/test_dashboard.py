@@ -40,7 +40,7 @@ def test_dashboard_renders_valid_html_with_findings(tmp_path):
 
     render_dashboard(scored, output)
 
-    html = output.read_text()
+    html = output.read_text(encoding="utf-8")
     assert "<!DOCTYPE html>" in html
     assert "AKIAIOSFODNN7EXAMPLE" in html  # revealed value present (behind <details>)
     assert "█" in html  # redaction bar present
@@ -54,7 +54,7 @@ def test_dashboard_renders_clean_record_state(tmp_path):
     output = tmp_path / "report_empty.html"
     render_dashboard([], output)
 
-    html = output.read_text()
+    html = output.read_text(encoding="utf-8")
     assert "RECORD CLEAN" in html
 
     parser = _StrictParser()
@@ -75,7 +75,7 @@ def test_dashboard_escapes_html_in_matched_text(tmp_path):
 
     output = tmp_path / "report_xss.html"
     render_dashboard(scored, output)
-    html = output.read_text()
+    html = output.read_text(encoding="utf-8")
 
     # The raw payload must never appear unescaped — this would be a
     # stored-XSS-in-a-local-file bug if a scanned repo/media file

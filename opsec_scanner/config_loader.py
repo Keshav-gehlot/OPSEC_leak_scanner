@@ -35,7 +35,7 @@ def load_config(path: Path | str | None = None) -> dict:
     if not p.exists():
         return {}
 
-    with open(p, "r") as f:
+    with open(p, "r", encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
 
     defaults: dict = {}

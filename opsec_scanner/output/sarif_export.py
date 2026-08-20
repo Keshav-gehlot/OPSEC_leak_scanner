@@ -92,5 +92,5 @@ def export_sarif(scored: list[ScoredFinding], output_path: str | Path, reveal: b
         ],
     }
 
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(sarif, f, indent=2, default=str)

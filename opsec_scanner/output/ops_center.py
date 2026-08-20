@@ -195,5 +195,5 @@ def render_ops_center(history_dir: Path | str, output_path: str | Path) -> None:
 </body>
 </html>"""
 
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)

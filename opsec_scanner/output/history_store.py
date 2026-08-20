@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -82,9 +83,10 @@ def save_snapshot(
     # timestamps silently overwrote each other when scans ran back to
     # back (e.g. scanning several repos in one CLI invocation).
     content_hash = hashlib.sha1(json.dumps(snapshot, sort_keys=True).encode()).hexdigest()[:8]
-    filename = f"{timestamp.strftime('%Y%m%dT%H%M%S%f')}Z_{target_label.replace('/', '_')}_{content_hash}.json"
+    safe_label = re.sub(r"[^\w\-.]", "_", target_label)
+    filename = f"{timestamp.strftime('%Y%m%dT%H%M%S%f')}Z_{safe_label}_{content_hash}.json"
     snapshot_path = history_dir / filename
-    with open(snapshot_path, "w") as f:
+    with open(snapshot_path, "w", encoding="utf-8") as f:
         json.dump(snapshot, f, indent=2)
 
     return snapshot_path
@@ -103,7 +105,7 @@ def load_history(history_dir: Path | str | None = None) -> list[dict]:
     snapshots = []
     for path in sorted(history_dir.glob("*.json")):
         try:
-            with open(path, "r") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 snapshots.append(json.load(f))
         except (json.JSONDecodeError, OSError):
             continue  # skip corrupt/partial snapshot files rather than failing the whole load

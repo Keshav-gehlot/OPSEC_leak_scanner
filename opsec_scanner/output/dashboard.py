@@ -521,5 +521,5 @@ def _build_html(scored: list[ScoredFinding], mode: str = "interactive", scan_sta
 def render_dashboard(scored: list[ScoredFinding], output_path: str | Path, scan_stats: dict | None = None) -> None:
     """Entrypoint used by main.py for the interactive HTML report."""
     html = _build_html(scored, mode="interactive", scan_stats=scan_stats)
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(html)

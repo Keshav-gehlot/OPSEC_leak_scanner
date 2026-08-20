@@ -11,3 +11,5 @@ opsec_report.html
 opsec_report.json
 opsec_report.pdf
 opsec_report.sarif
+ops_center.html
+*.pdf

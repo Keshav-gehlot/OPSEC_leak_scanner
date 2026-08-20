@@ -19,7 +19,7 @@ def test_sarif_is_valid_json_with_required_top_level_keys(tmp_path):
     output = tmp_path / "report.sarif"
     export_sarif(scored, output)
 
-    data = json.loads(output.read_text())
+    data = json.loads(output.read_text(encoding="utf-8"))
     assert data["version"] == "2.1.0"
     assert "runs" in data
     assert len(data["runs"]) == 1
@@ -33,7 +33,7 @@ def test_sarif_redacts_by_default(tmp_path):
     output = tmp_path / "report.sarif"
     export_sarif(scored, output)
 
-    raw = output.read_text()
+    raw = output.read_text(encoding="utf-8")
     assert secret not in raw
 
 
@@ -43,7 +43,7 @@ def test_sarif_reveals_when_opted_in(tmp_path):
     output = tmp_path / "report.sarif"
     export_sarif(scored, output, reveal=True)
 
-    raw = output.read_text()
+    raw = output.read_text(encoding="utf-8")
     assert secret in raw
 
 
@@ -60,7 +60,7 @@ def test_sarif_critical_maps_to_error_level(tmp_path):
     output = tmp_path / "report.sarif"
     export_sarif(scored, output)
 
-    data = json.loads(output.read_text())
+    data = json.loads(output.read_text(encoding="utf-8"))
     assert data["runs"][0]["results"][0]["level"] == "error"
 
 
@@ -74,7 +74,7 @@ def test_sarif_dedupes_rule_declarations_across_multiple_findings(tmp_path):
 
     output = tmp_path / "report.sarif"
     export_sarif(scored, output)
-    data = json.loads(output.read_text())
+    data = json.loads(output.read_text(encoding="utf-8"))
 
     assert len(data["runs"][0]["tool"]["driver"]["rules"]) == 1  # one rule declared, not three
     assert len(data["runs"][0]["results"]) == 3  # but three results
