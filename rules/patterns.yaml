@@ -1,0 +1,147 @@
+rules:
+  - id: aws_access_key
+    category: credentials
+    regex: '\bAKIA[0-9A-Z]{16}\b'
+    base_severity: 9.5
+    requires_entropy_check: false
+    description: "AWS Access Key ID"
+
+  - id: private_key_block
+    category: credentials
+    regex: '-----BEGIN (RSA|EC|OPENSSH|DSA|PGP) PRIVATE KEY-----'
+    base_severity: 10.0
+    requires_entropy_check: false
+    description: "Private key block header"
+
+  - id: generic_jwt
+    category: credentials
+    regex: '\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b'
+    base_severity: 8.5
+    requires_entropy_check: false
+    description: "JWT token"
+
+  - id: generic_api_key_assignment
+    category: credentials
+    regex: '(?i)(?:api[_-]?key|secret|token|password|passwd|pwd)\s*[:=]\s*([A-Za-z0-9_\-/+=]{8,})'
+    base_severity: 7.0
+    requires_entropy_check: true
+    description: "Generic key=value credential assignment (entropy-checked)"
+
+  - id: db_connection_string
+    category: credentials
+    regex: "(?i)\\b(postgres|postgresql|mysql|mongodb|redis)://[^\\s\"']+:[^\\s\"']+@[^\\s\"']+"
+    base_severity: 9.0
+    requires_entropy_check: false
+    description: "Database connection string with embedded credentials"
+
+  - id: github_pat
+    category: credentials
+    regex: '\bgh[pousr]_[A-Za-z0-9]{36}\b'
+    base_severity: 9.5
+    requires_entropy_check: false
+    description: "GitHub Personal Access Token / OAuth / App token"
+
+  - id: slack_token
+    category: credentials
+    regex: '\bxox[baprs]-[0-9A-Za-z-]{10,}\b'
+    base_severity: 8.5
+    requires_entropy_check: false
+    description: "Slack API token"
+
+  - id: stripe_key
+    category: credentials
+    regex: '\b(sk|pk|rk)_(live|test)_[0-9A-Za-z]{16,}\b'
+    base_severity: 9.0
+    requires_entropy_check: false
+    description: "Stripe API key"
+
+  - id: google_api_key
+    category: credentials
+    regex: '\bAIza[0-9A-Za-z_\-]{35}\b'
+    base_severity: 8.0
+    requires_entropy_check: false
+    description: "Google/GCP API key"
+
+  - id: gcp_service_account_key
+    category: credentials
+    regex: '"type"\s*:\s*"service_account"'
+    base_severity: 9.5
+    requires_entropy_check: false
+    description: "Embedded GCP service account JSON key"
+
+  - id: azure_connection_string
+    category: credentials
+    regex: '(?i)AccountKey=[A-Za-z0-9+/=]{20,}'
+    base_severity: 9.0
+    requires_entropy_check: false
+    description: "Azure Storage connection string with embedded key"
+
+  - id: npm_token
+    category: credentials
+    regex: '\bnpm_[A-Za-z0-9]{36}\b'
+    base_severity: 8.0
+    requires_entropy_check: false
+    description: "npm access token"
+
+  - id: generic_bearer_token
+    category: credentials
+    regex: '(?i)bearer\s+[A-Za-z0-9_\-.]{20,}'
+    base_severity: 6.5
+    requires_entropy_check: true
+    description: "Generic Bearer auth header token (entropy-checked)"
+
+  - id: ssh_private_key_indicator
+    category: credentials
+    regex: '\bid_(rsa|ed25519|ecdsa|dsa)\b'
+    base_severity: 8.0
+    requires_entropy_check: false
+    description: "SSH private key filename reference"
+
+  - id: internal_ip_range
+    category: infrastructure
+    regex: '\b(10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b'
+    base_severity: 6.5
+    requires_entropy_check: false
+    description: "Internal/private IP address"
+
+  - id: internal_hostname
+    category: infrastructure
+    regex: '\b[a-zA-Z0-9-]+\.(internal|local|corp|lan)\b'
+    base_severity: 7.5
+    requires_entropy_check: false
+    description: "Internal-only hostname/domain"
+
+  - id: staging_dev_url
+    category: infrastructure
+    regex: '(?i)\bhttps?://(dev|staging|internal|test)[.-][a-zA-Z0-9.-]+\b'
+    base_severity: 6.0
+    requires_entropy_check: false
+    description: "Staging/dev environment URL"
+
+  - id: personal_email_domain
+    category: personal
+    regex: '(?i)\b[a-zA-Z0-9._%+-]+@(gmail|yahoo|outlook|hotmail|icloud)\.com\b'
+    base_severity: 4.5
+    requires_entropy_check: false
+    description: "Personal email address on a work/public artifact"
+
+  - id: unix_home_path
+    category: system
+    regex: '/(Users|home)/[a-zA-Z0-9_.-]+/'
+    base_severity: 2.5
+    requires_entropy_check: false
+    description: "Unix-style user home directory path"
+
+  - id: windows_home_path
+    category: system
+    regex: 'C:\\Users\\[a-zA-Z0-9_.-]+\\'
+    base_severity: 2.5
+    requires_entropy_check: false
+    description: "Windows user home directory path"
+
+  - id: macos_local_hostname
+    category: system
+    regex: '(?i)\b[a-zA-Z0-9-]+\.local\b'
+    base_severity: 3.0
+    requires_entropy_check: false
+    description: "macOS Bonjour .local hostname (often leaks device/owner name)"

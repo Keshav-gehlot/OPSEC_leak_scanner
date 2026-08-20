@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+target_profile.yaml
+*.egg-info/
+.venv/
+dist/
+build/
+.opsec-scan/
+opsec_report.html
+opsec_report.json
+opsec_report.pdf
+opsec_report.sarif

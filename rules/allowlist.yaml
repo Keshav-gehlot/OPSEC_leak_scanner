@@ -1,0 +1,20 @@
+# Allowlist / ignore rules. Any finding whose matched_text or origin
+# matches one of these patterns is suppressed before scoring.
+#
+# Use this for: vendor SDK example keys, test fixtures, placeholder
+# values in documentation, CI service accounts you've already rotated.
+
+ignore_patterns:
+  # Common vendor placeholder/example values that trip credential regexes
+  - "AKIAIOSFODNN7EXAMPLE"          # AWS's own documentation example key
+  - "example_key_here"
+  - "your_api_key_here"
+  - "sk_test_1234567890"
+
+# Paths (substring match against RawFinding.origin) to skip entirely —
+# useful for excluding test fixtures / vendored dependencies from scans.
+ignore_paths:
+  - "/tests/fixtures/"
+  - "/node_modules/"
+  - "/vendor/"
+  - "/.venv/"

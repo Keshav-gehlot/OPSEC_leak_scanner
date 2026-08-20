@@ -1,0 +1,31 @@
+# opsec-scan project config. Place at ./opsec-scan.yaml (or pass
+# --config path/to/file.yaml) to set defaults for a repo without
+# retyping flags every run — any CLI flag you do pass still overrides
+# the value here.
+#
+# All keys are optional; only set what you want to override from the
+# tool's built-in defaults.
+
+# Same as --entropy-threshold
+entropy_threshold: 3.5
+
+# Same as --max-patch-commits (0 = unlimited)
+max_patch_commits: 500
+
+# Same as --public-repo
+public_repo: false
+
+# Same as --fail-on. One of: CRITICAL, HIGH, MEDIUM, LOW, NONE
+fail_on: NONE
+
+# Same as --reveal-in-pdf / --reveal-in-json — applies to both exports.
+# Keep this false in shared/CI configs; override per-run with the CLI
+# flag for a personal-use copy instead of flipping it here.
+reveal_secrets: false
+
+# Same as --profile
+profile: target_profile.yaml
+
+# Same as --rules / --allowlist, if you maintain org-specific copies
+# rules: rules/patterns.yaml
+# allowlist: rules/allowlist.yaml
