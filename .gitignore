@@ -13,3 +13,6 @@ opsec_report.pdf
 opsec_report.sarif
 ops_center.html
 *.pdf
+node_modules/
+web/dist/
+web/.vite/
