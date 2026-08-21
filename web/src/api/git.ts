@@ -7,6 +7,6 @@ export async function fetchGitForensics(): Promise<GitForensicFinding[]> {
 }
 
 export async function fetchGitForensicById(findingId: string): Promise<GitForensicFinding | undefined> {
-  const item = mockGitForensicFindings.find((g) => g.findingId === findingId);
+  const item = mockGitForensicFindings.find((g: GitForensicFinding) => g.findingId === findingId);
   return apiClient.get<GitForensicFinding | undefined>(`/git/forensics/${findingId}`, item);
 }

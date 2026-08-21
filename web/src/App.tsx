@@ -13,6 +13,8 @@ import { Settings } from './pages/Settings';
 
 import { FindingDetailModal } from './components/findings/FindingDetailModal';
 import { NewScanModal } from './components/scans/NewScanModal';
+import { CommandPalette } from './components/common/CommandPalette';
+import { ToastContainer, ToastMessage } from './components/common/Toast';
 
 import { 
   Finding, 
@@ -38,7 +40,6 @@ import { mockTargetProfile } from './api/mockData';
 
 export const App: React.FC = () => {
   const [activePage, setActivePage] = useState<PageId>('dashboard');
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Data states
   const [findings, setFindings] = useState<Finding[]>([]);
@@ -52,9 +53,22 @@ export const App: React.FC = () => {
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [profile, setProfile] = useState<TargetProfile>(mockTargetProfile);
 
-  // Modals
+  // Modals & Palettes
   const [selectedFinding, setSelectedFinding] = useState<Finding | null>(null);
   const [isNewScanModalOpen, setIsNewScanModalOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Toasts
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = (type: ToastMessage['type'], title: string, message?: string) => {
+    const id = Date.now().toString();
+    setToasts((prev) => [...prev, { id, type, title, message }]);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   // Initial load
   useEffect(() => {
@@ -71,6 +85,18 @@ export const App: React.FC = () => {
     fetchTargetProfile().then(setProfile);
   }, []);
 
+  // Keyboard shortcut for Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   // Handlers
   const handleStatusChange = async (id: string, newStatus: FindingStatus) => {
     const updated = await updateFindingStatus(id, newStatus);
@@ -79,30 +105,51 @@ export const App: React.FC = () => {
       if (selectedFinding?.id === id) {
         setSelectedFinding(updated);
       }
+      addToast('success', `Finding status updated to ${newStatus}`, updated.title);
     }
   };
 
-  const handleStartScan = async (target: string, type: 'git' | 'media', depth: 'current' | 'full_history' | 'forensic') => {
+  const handleBulkStatusChange = (ids: string[], newStatus: FindingStatus) => {
+    setFindings((prev) =>
+      prev.map((f) => (ids.includes(f.id) ? { ...f, status: newStatus } : f))
+    );
+    addToast('success', `Updated ${ids.length} findings to ${newStatus}`);
+  };
+
+  const handleStartScan = async (
+    target: string,
+    type: 'git' | 'media',
+    depth: 'current' | 'full_history' | 'forensic'
+  ) => {
     const newScan = await createScan(target, type, depth);
     setActiveScan(newScan);
     setScans((prev) => [newScan, ...prev]);
     setActivePage('scans');
+    addToast('info', 'OPSEC Scan Initiated', `Analyzing ${target}...`);
   };
 
   const handleUpdateBaseline = async () => {
     await updateBaselineSnapshot();
     const fresh = await fetchBaselineComparison();
     setBaseline(fresh);
+    addToast('success', 'Baseline Synchronized', 'Active findings snapshot saved as new baseline reference.');
   };
 
   const handleGenerateReport = async (format: 'HTML' | 'PDF' | 'JSON' | 'SARIF') => {
     const item = await triggerReportGeneration(format);
     setReports((prev) => [item, ...prev]);
+    addToast('success', `${format} Report Generated`, item.title);
   };
 
-  const handleExportQuick = (format: 'JSON' | 'SARIF' | 'PDF') => {
+  const handleExportQuick = (format: 'JSON' | 'SARIF' | 'PDF' | 'HTML') => {
     handleGenerateReport(format);
     setActivePage('reports');
+  };
+
+  const handleSaveProfile = async (p: TargetProfile) => {
+    await saveTargetProfile(p);
+    setProfile(p);
+    addToast('success', 'Target Profile Saved', `${p.name} profile anchors updated.`);
   };
 
   return (
@@ -110,16 +157,15 @@ export const App: React.FC = () => {
       activePage={activePage}
       onSelectPage={setActivePage}
       onStartNewScan={() => setIsNewScanModalOpen(true)}
+      onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
       openFindingsCount={findings.filter((f) => f.status === 'OPEN').length}
-      searchQuery={searchQuery}
-      onSearchChange={setSearchQuery}
     >
       {/* Page Routing */}
       {activePage === 'dashboard' && (
         <Dashboard
           findings={findings}
           onSelectFinding={setSelectedFinding}
-          onNavigatePage={setActivePage}
+          onNavigatePage={(page) => setActivePage(page)}
           onStartNewScan={() => setIsNewScanModalOpen(true)}
         />
       )}
@@ -130,6 +176,8 @@ export const App: React.FC = () => {
           activeScan={activeScan}
           onStartNewScan={() => setIsNewScanModalOpen(true)}
           onViewFindings={() => setActivePage('findings')}
+          onViewIdentity={() => setActivePage('identity')}
+          onGenerateReport={() => handleGenerateReport('HTML')}
         />
       )}
 
@@ -138,6 +186,7 @@ export const App: React.FC = () => {
           findings={findings}
           onSelectFinding={setSelectedFinding}
           onExport={handleExportQuick}
+          onBulkStatusChange={handleBulkStatusChange}
         />
       )}
 
@@ -154,6 +203,7 @@ export const App: React.FC = () => {
           baseline={baseline}
           onSelectFinding={setSelectedFinding}
           onUpdateBaseline={handleUpdateBaseline}
+          onExportDiff={() => handleGenerateReport('JSON')}
         />
       )}
 
@@ -166,10 +216,10 @@ export const App: React.FC = () => {
       )}
 
       {activePage === 'settings' && (
-        <Settings profile={profile} onSaveProfile={saveTargetProfile} />
+        <Settings profile={profile} onSaveProfile={handleSaveProfile} />
       )}
 
-      {/* Global Modals */}
+      {/* Global Modals & Command Palette */}
       <FindingDetailModal
         finding={selectedFinding}
         isOpen={Boolean(selectedFinding)}
@@ -182,6 +232,18 @@ export const App: React.FC = () => {
         onClose={() => setIsNewScanModalOpen(false)}
         onStartScan={handleStartScan}
       />
+
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onSelectPage={setActivePage}
+        onSelectFinding={(f) => setSelectedFinding(f)}
+        onStartNewScan={() => setIsNewScanModalOpen(true)}
+        findings={findings}
+      />
+
+      {/* Global Toast Container */}
+      <ToastContainer toasts={toasts} onDismiss={removeToast} />
     </AppLayout>
   );
 };

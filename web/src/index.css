@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    background-color: #0B1020;
+    background-color: #080D18;
     color: #F8FAFC;
     font-family: 'Inter', sans-serif;
   }
@@ -17,24 +17,24 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #0E1528;
+  background: #0C1322;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #24304A;
+  background: #22304A;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3B4B6E;
+  background: #334466;
 }
 
 /* Cyber SOC Grid Background */
 .bg-grid-pattern {
   background-size: 32px 32px;
   background-image: 
-    linear-gradient(to right, rgba(36, 48, 74, 0.25) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(36, 48, 74, 0.25) 1px, transparent 1px);
+    linear-gradient(to right, rgba(34, 48, 74, 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(34, 48, 74, 0.2) 1px, transparent 1px);
 }
 
 .radar-sweep {
@@ -49,7 +49,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(108, 99, 255, 0.05) 0%, rgba(56, 189, 248, 0.15) 50%, rgba(108, 99, 255, 0) 100%);
+  background: linear-gradient(180deg, rgba(108, 99, 255, 0.04) 0%, rgba(56, 189, 248, 0.12) 50%, rgba(108, 99, 255, 0) 100%);
   animation: sweep 3s ease-in-out infinite;
   pointer-events: none;
 }
@@ -65,36 +65,36 @@
 
 /* React Flow custom dark theme styling */
 .react-flow__background {
-  background-color: #0B1020 !important;
+  background-color: #080D18 !important;
 }
 
 .react-flow__controls {
-  background-color: #141C31 !important;
-  border: 1px solid #24304A !important;
+  background-color: #111A2B !important;
+  border: 1px solid #22304A !important;
   border-radius: 8px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
 }
 
 .react-flow__controls-button {
-  background-color: #141C31 !important;
-  border-bottom: 1px solid #24304A !important;
+  background-color: #111A2B !important;
+  border-bottom: 1px solid #22304A !important;
   fill: #94A3B8 !important;
   color: #94A3B8 !important;
 }
 
 .react-flow__controls-button:hover {
-  background-color: #19223A !important;
+  background-color: #172238 !important;
   fill: #F8FAFC !important;
 }
 
 .react-flow__minimap {
-  background-color: #0E1528 !important;
-  border: 1px solid #24304A !important;
+  background-color: #0C1322 !important;
+  border: 1px solid #22304A !important;
   border-radius: 8px !important;
 }
 
 .react-flow__minimap-mask {
-  fill: rgba(11, 16, 32, 0.75) !important;
+  fill: rgba(8, 13, 24, 0.8) !important;
 }
 
 .react-flow__minimap-node {

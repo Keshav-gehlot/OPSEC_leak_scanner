@@ -5,13 +5,13 @@ interface MetricCardProps {
   label: string;
   value: string | number;
   icon: LucideIcon;
+  subtext?: string;
   trend?: {
     value: string;
     direction: 'up' | 'down' | 'neutral';
-    isPositive?: boolean; // whether "up" is good or bad
+    isPositive?: boolean; // Positive for security (e.g., risk down is good)
   };
   severityColor?: 'critical' | 'high' | 'medium' | 'low' | 'primary' | 'secondary';
-  subtext?: string;
   onClick?: () => void;
 }
 
@@ -19,50 +19,95 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   label,
   value,
   icon: Icon,
+  subtext,
   trend,
   severityColor = 'primary',
-  subtext,
   onClick,
 }) => {
-  const colorMap = {
-    critical: 'text-critical border-critical/30 bg-critical/10 hover:border-critical/60',
-    high: 'text-high border-high/30 bg-high/10 hover:border-high/60',
-    medium: 'text-medium border-medium/30 bg-medium/10 hover:border-medium/60',
-    low: 'text-low border-low/30 bg-low/10 hover:border-low/60',
-    primary: 'text-primary border-primary/30 bg-primary/10 hover:border-primary/60',
-    secondary: 'text-secondary border-secondary/30 bg-secondary/10 hover:border-secondary/60',
-  };
-
-  const iconColor = {
-    critical: 'text-critical bg-critical/15 border-critical/30',
-    high: 'text-high bg-high/15 border-high/30',
-    medium: 'text-medium bg-medium/15 border-medium/30',
-    low: 'text-low bg-low/15 border-low/30',
-    primary: 'text-primary bg-primary/15 border-primary/30',
-    secondary: 'text-secondary bg-secondary/15 border-secondary/30',
+  const colorStyles = {
+    critical: {
+      border: 'border-critical/30 hover:border-critical/60',
+      iconBg: 'bg-critical/15 text-critical',
+      glow: 'hover:shadow-glow-critical',
+      accent: 'text-critical',
+    },
+    high: {
+      border: 'border-high/30 hover:border-high/60',
+      iconBg: 'bg-high/15 text-high',
+      glow: 'hover:shadow-card-elevated',
+      accent: 'text-high',
+    },
+    medium: {
+      border: 'border-medium/30 hover:border-medium/60',
+      iconBg: 'bg-medium/15 text-medium',
+      glow: 'hover:shadow-card-elevated',
+      accent: 'text-medium',
+    },
+    low: {
+      border: 'border-low/30 hover:border-low/60',
+      iconBg: 'bg-low/15 text-low',
+      glow: 'hover:shadow-card-elevated',
+      accent: 'text-low',
+    },
+    primary: {
+      border: 'border-primary/30 hover:border-primary/60',
+      iconBg: 'bg-primary/15 text-primary',
+      glow: 'hover:shadow-glow-primary',
+      accent: 'text-primary',
+    },
+    secondary: {
+      border: 'border-secondary/30 hover:border-secondary/60',
+      iconBg: 'bg-secondary/15 text-secondary',
+      glow: 'hover:shadow-card-elevated',
+      accent: 'text-secondary',
+    },
   }[severityColor];
 
   return (
     <div
       onClick={onClick}
-      className={`relative rounded-xl border border-border bg-card p-5 shadow-card transition-all duration-200 hover:bg-card-hover ${
-        onClick ? 'cursor-pointer hover:scale-[1.01]' : ''
+      className={`rounded-2xl border bg-surface p-5 shadow-card transition-all duration-200 ${
+        colorStyles.border
+      } ${colorStyles.glow} ${
+        onClick ? 'cursor-pointer hover:-translate-y-0.5 hover:bg-surface-elevated' : ''
       }`}
     >
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-text-secondary">{label}</p>
-          <h3 className="mt-2 text-3xl font-bold font-mono tracking-tight text-text-primary">{value}</h3>
-        </div>
-        <div className={`flex h-12 w-12 items-center justify-center rounded-lg border ${iconColor}`}>
-          <Icon className="h-6 w-6" />
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-secondary">
+          {label}
+        </span>
+        <div className={`rounded-xl p-2.5 ${colorStyles.iconBg}`}>
+          <Icon className="h-4 w-4" />
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between text-xs">
-        {trend && (
+      <div className="mt-3 flex items-baseline justify-between">
+        <span className="text-3xl font-extrabold font-mono tracking-tight text-text-primary">
+          {value}
+        </span>
+      </div>
+
+      {trend && (
+        <div className="mt-2.5 flex items-center gap-1.5 text-xs">
+          {trend.direction === 'up' && (
+            <TrendingUp
+              className={`h-3.5 w-3.5 ${
+                trend.isPositive ? 'text-low' : 'text-critical'
+              }`}
+            />
+          )}
+          {trend.direction === 'down' && (
+            <TrendingDown
+              className={`h-3.5 w-3.5 ${
+                trend.isPositive ? 'text-low' : 'text-critical'
+              }`}
+            />
+          )}
+          {trend.direction === 'neutral' && (
+            <Minus className="h-3.5 w-3.5 text-text-muted" />
+          )}
           <span
-            className={`inline-flex items-center gap-1 font-medium ${
+            className={`font-medium ${
               trend.direction === 'neutral'
                 ? 'text-text-muted'
                 : trend.isPositive
@@ -70,14 +115,14 @@ export const MetricCard: React.FC<MetricCardProps> = ({
                 : 'text-critical'
             }`}
           >
-            {trend.direction === 'up' && <TrendingUp className="h-3.5 w-3.5" />}
-            {trend.direction === 'down' && <TrendingDown className="h-3.5 w-3.5" />}
-            {trend.direction === 'neutral' && <Minus className="h-3.5 w-3.5" />}
             {trend.value}
           </span>
-        )}
-        {subtext && <span className="text-text-muted">{subtext}</span>}
-      </div>
+        </div>
+      )}
+
+      {subtext && !trend && (
+        <p className="mt-2.5 text-xs text-text-muted">{subtext}</p>
+      )}
     </div>
   );
 };

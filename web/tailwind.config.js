@@ -8,13 +8,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0B1020',
-        sidebar: '#0E1528',
-        card: {
-          DEFAULT: '#141C31',
-          hover: '#19223A',
+        background: '#080D18',
+        sidebar: '#0C1322',
+        surface: {
+          DEFAULT: '#111A2B',
+          elevated: '#172238',
+          hover: '#19253E',
         },
-        border: '#24304A',
+        card: {
+          DEFAULT: '#111A2B',
+          hover: '#172238',
+        },
+        border: '#22304A',
         primary: {
           DEFAULT: '#6C63FF',
           hover: '#5B52E0',
@@ -56,9 +61,10 @@ export default {
         mono: ['JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
       },
       boxShadow: {
-        'card': '0 4px 20px -2px rgba(0, 0, 0, 0.4)',
-        'glow-primary': '0 0 25px -5px rgba(108, 99, 255, 0.3)',
-        'glow-critical': '0 0 25px -5px rgba(239, 68, 68, 0.3)',
+        'card': '0 4px 20px -2px rgba(0, 0, 0, 0.5)',
+        'card-elevated': '0 8px 30px -4px rgba(0, 0, 0, 0.6)',
+        'glow-primary': '0 0 25px -5px rgba(108, 99, 255, 0.35)',
+        'glow-critical': '0 0 25px -5px rgba(239, 68, 68, 0.35)',
       },
     },
   },

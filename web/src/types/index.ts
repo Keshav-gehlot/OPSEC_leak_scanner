@@ -6,6 +6,15 @@ export type FindingStatus = 'OPEN' | 'IN_REVIEW' | 'RESOLVED' | 'SUPPRESSED';
 
 export type ExposureLevel = 'PUBLIC_REACHABLE' | 'ARCHIVED_OR_HIDDEN' | 'LOCAL_ONLY';
 
+export interface SecretIntelligence {
+  secretConfidence: number; // 0.0 - 1.0
+  entropy: number;
+  charsetDiversity: 'High' | 'Medium' | 'Low';
+  contextMatch: 'Strong' | 'Moderate' | 'Weak';
+  dictionaryFilter: 'Passed' | 'Filtered';
+  signatureName: string;
+}
+
 export interface Finding {
   id: string;
   ruleId: string;
@@ -24,6 +33,17 @@ export interface Finding {
     exploitability: number;
     persistence: number;
     context: number;
+  };
+
+  // Secret Intelligence (for credential findings)
+  secretIntelligence?: SecretIntelligence;
+
+  // Domain Intelligence (for domain findings)
+  domainIntelligence?: {
+    domain: string;
+    classification: 'PUBLIC' | 'INTERNAL' | 'STAGING' | 'DEVELOPMENT' | 'VPN' | 'ADMIN' | 'MONITORING' | 'SENSITIVE';
+    exposure: string;
+    confidence: number;
   };
 
   // Location & Provenance
@@ -52,7 +72,7 @@ export interface Finding {
   firstSeen: string;
   lastSeen: string;
   occurrences: number;
-  lifecycleStatus?: 'ACTIVE_IN_HEAD' | 'HISTORICAL_LEAK' | 'DANGLING_ORPHAN';
+  lifecycleStatus?: 'ACTIVE_IN_HEAD' | 'HISTORICAL_LEAK' | 'DANGLING ORPHAN';
   identityCorrelation?: {
     matchedString: string;
     type: string;
@@ -69,6 +89,7 @@ export interface ScanStats {
   commitsAnalyzed: number;
   rulesEvaluated: number;
   findingsDiscovered: number;
+  entitiesDiscovered?: number;
   criticalCount: number;
   highCount: number;
   mediumCount: number;
@@ -106,6 +127,7 @@ export type IdentityNodeType =
   | 'hostname' 
   | 'repo' 
   | 'commit' 
+  | 'file'
   | 'secret' 
   | 'gps' 
   | 'domain';
@@ -126,7 +148,7 @@ export interface IdentityGraphEdge {
   id: string;
   source: string;
   target: string;
-  label: 'AUTHORED' | 'CONTAINS' | 'RESOLVES_TO' | 'CO_OCCURS_WITH' | 'COMMITTED_BY' | 'RUNS_ON' | 'GEO_PROXIMATE';
+  label: 'AUTHORED' | 'CONTAINS' | 'COMMITTED_BY' | 'CO_OCCURS_WITH' | 'RESOLVES_TO' | 'RUNS_ON' | 'GEO_PROXIMATE';
   animated?: boolean;
 }
 
@@ -174,8 +196,9 @@ export interface BaselineComparison {
 export interface DomainIntelligence {
   id: string;
   domain: string;
-  classification: 'PUBLIC' | 'INTERNAL' | 'STAGING' | 'DEVELOPMENT' | 'VPN' | 'MONITORING' | 'ADMIN' | 'SENSITIVE';
+  classification: 'PUBLIC' | 'INTERNAL' | 'STAGING' | 'DEVELOPMENT' | 'VPN' | 'ADMIN' | 'MONITORING' | 'SENSITIVE';
   severity: Severity;
+  confidence?: number;
   riskReason: string;
   associatedFindings: number;
   environment: string;

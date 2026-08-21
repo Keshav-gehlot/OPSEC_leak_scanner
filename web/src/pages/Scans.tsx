@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { Scan, ScanStats } from '../types';
+import { Scan } from '../types';
 import { 
   FolderGit2, 
   FileText, 
   Plus, 
   CheckCircle2, 
-  Clock, 
-  AlertOctagon, 
-  ArrowRight,
-  RefreshCw,
-  Search
+  Search,
+  ArrowRight
 } from 'lucide-react';
 import { ActiveScanView } from '../components/scans/ActiveScanView';
 
@@ -18,6 +15,8 @@ interface ScansProps {
   activeScan: Scan | null;
   onStartNewScan: () => void;
   onViewFindings: () => void;
+  onViewIdentity?: () => void;
+  onGenerateReport?: () => void;
 }
 
 export const Scans: React.FC<ScansProps> = ({
@@ -25,6 +24,8 @@ export const Scans: React.FC<ScansProps> = ({
   activeScan,
   onStartNewScan,
   onViewFindings,
+  onViewIdentity,
+  onGenerateReport,
 }) => {
   const [search, setSearch] = useState('');
 
@@ -39,7 +40,7 @@ export const Scans: React.FC<ScansProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-text-primary">
-            Scans & Audit Runs
+            Audit Runs & Scans
           </h1>
           <p className="text-sm text-text-muted mt-1.5">
             Manage live scan jobs, trigger deep historical git forensics, and view audit history.
@@ -57,12 +58,17 @@ export const Scans: React.FC<ScansProps> = ({
 
       {/* Active Scan Section (if active) */}
       {activeScan && (
-        <ActiveScanView scan={activeScan} onViewFindings={onViewFindings} />
+        <ActiveScanView 
+          scan={activeScan} 
+          onViewFindings={onViewFindings}
+          onViewIdentity={onViewIdentity}
+          onGenerateReport={onGenerateReport}
+        />
       )}
 
       {/* Past Scans History Table */}
-      <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
-        <div className="p-5 border-b border-border bg-sidebar/50 flex flex-wrap items-center justify-between gap-4">
+      <div className="rounded-2xl border border-border bg-surface shadow-card overflow-hidden">
+        <div className="p-5 border-b border-border bg-sidebar/60 flex flex-wrap items-center justify-between gap-4">
           <h3 className="text-base font-bold text-text-primary tracking-tight">Audit History & Snapshots</h3>
           <div className="relative w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
@@ -71,7 +77,7 @@ export const Scans: React.FC<ScansProps> = ({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search past scans..."
-              className="w-full rounded-lg border border-border bg-card pl-9 pr-4 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-border bg-surface pl-9 pr-4 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none"
             />
           </div>
         </div>
@@ -92,7 +98,7 @@ export const Scans: React.FC<ScansProps> = ({
             </thead>
             <tbody className="divide-y divide-border/60">
               {filteredScans.map((s) => (
-                <tr key={s.id} className="hover:bg-card-hover/80 transition-colors">
+                <tr key={s.id} className="hover:bg-surface-elevated/80 transition-colors">
                   <td className="py-3.5 px-4 font-mono font-semibold text-text-primary">{s.id}</td>
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-2 font-medium text-text-primary">
@@ -122,7 +128,7 @@ export const Scans: React.FC<ScansProps> = ({
                   <td className="py-3.5 px-4 text-right">
                     <button
                       onClick={onViewFindings}
-                      className="px-3 py-1 rounded border border-border bg-sidebar hover:border-primary/50 text-text-secondary hover:text-text-primary text-xs font-medium"
+                      className="px-3 py-1 rounded-lg border border-border bg-sidebar hover:border-primary/50 text-text-secondary hover:text-text-primary text-xs font-medium transition-colors"
                     >
                       View Findings →
                     </button>

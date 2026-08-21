@@ -76,29 +76,31 @@ export const Reports: React.FC<ReportsProps> = ({ reports, onGenerateReport }) =
             color: 'text-low border-low/30 bg-low/10',
           },
         ].map((card) => (
-          <div key={card.format} className="rounded-xl border border-border bg-card p-5 flex flex-col justify-between shadow-card hover:bg-card-hover transition-all">
+          <div key={card.format} className="rounded-2xl border border-border bg-surface p-5 flex flex-col justify-between shadow-card hover:bg-surface-elevated transition-all">
             <div>
-              <div className={`inline-flex p-2.5 rounded-lg border ${card.color} mb-3`}>
+              <div className={`inline-flex p-2.5 rounded-xl border ${card.color} mb-3`}>
                 <FileText className="h-5 w-5" />
               </div>
               <h4 className="text-sm font-bold text-text-primary">{card.title}</h4>
               <p className="text-xs text-text-muted mt-1 leading-relaxed">{card.desc}</p>
             </div>
 
-            <button
-              onClick={() => handleGenerate(card.format)}
-              disabled={generating === card.format}
-              className="mt-5 w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-sidebar hover:bg-card-hover border border-border text-xs font-semibold text-text-primary hover:border-primary/50 transition-all"
-            >
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
-              <span>{generating === card.format ? 'Generating...' : `Generate ${card.format}`}</span>
-            </button>
+            <div className="mt-5 flex items-center gap-2">
+              <button
+                onClick={() => handleGenerate(card.format)}
+                disabled={generating === card.format}
+                className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl bg-sidebar hover:bg-surface-elevated border border-border text-xs font-semibold text-text-primary hover:border-primary/50 transition-all"
+              >
+                <Sparkles className="h-3.5 w-3.5 text-primary" />
+                <span>{generating === card.format ? 'Generating...' : 'Generate'}</span>
+              </button>
+            </div>
           </div>
         ))}
       </div>
 
       {/* Export Archive Table */}
-      <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+      <div className="rounded-2xl border border-border bg-surface shadow-card overflow-hidden">
         <div className="p-4 border-b border-border bg-sidebar/50 flex items-center justify-between">
           <h3 className="text-base font-bold text-text-primary">Generated Audit Archive</h3>
           <span className="text-xs font-mono text-text-muted">{reports.length} files available</span>
@@ -117,9 +119,9 @@ export const Reports: React.FC<ReportsProps> = ({ reports, onGenerateReport }) =
             </thead>
             <tbody className="divide-y divide-border/60">
               {reports.map((rep) => (
-                <tr key={rep.id} className="hover:bg-card-hover/80 transition-colors">
+                <tr key={rep.id} className="hover:bg-surface-elevated/80 transition-colors">
                   <td className="py-3.5 px-4 font-mono font-bold">
-                    <span className="px-2 py-0.5 rounded bg-sidebar border border-border text-primary">
+                    <span className="px-2 py-0.5 rounded-lg bg-sidebar border border-border text-primary">
                       {rep.format}
                     </span>
                   </td>
@@ -130,7 +132,7 @@ export const Reports: React.FC<ReportsProps> = ({ reports, onGenerateReport }) =
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => setPreviewReport(rep)}
-                        className="p-1.5 rounded hover:bg-sidebar text-text-muted hover:text-text-primary transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-sidebar text-text-muted hover:text-text-primary transition-colors"
                         title="Live Preview"
                       >
                         <Eye className="h-4 w-4" />
@@ -138,7 +140,7 @@ export const Reports: React.FC<ReportsProps> = ({ reports, onGenerateReport }) =
                       <a
                         href={`/${rep.downloadFilename}`}
                         download={rep.downloadFilename}
-                        className="p-1.5 rounded hover:bg-sidebar text-text-muted hover:text-primary transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-sidebar text-text-muted hover:text-primary transition-colors"
                         title="Download Artifact"
                       >
                         <Download className="h-4 w-4" />
@@ -162,7 +164,7 @@ export const Reports: React.FC<ReportsProps> = ({ reports, onGenerateReport }) =
           maxWidth="2xl"
         >
           <div className="space-y-4">
-            <div className="rounded-lg border border-border bg-background p-4 font-mono text-xs text-text-secondary space-y-2">
+            <div className="rounded-xl border border-border bg-background p-4 font-mono text-xs text-text-secondary space-y-2">
               <div className="text-primary font-bold"># OPSEC Scanner v0.6.0 Case File Export</div>
               <div>Generated: {previewReport.generatedAt}</div>
               <div>Schema Version: OASIS / OPSEC-CORRELATION-2.1</div>
@@ -178,7 +180,7 @@ export const Reports: React.FC<ReportsProps> = ({ reports, onGenerateReport }) =
               <a
                 href={`/${previewReport.downloadFilename}`}
                 download={previewReport.downloadFilename}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold shadow-glow-primary hover:bg-primary-hover"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-glow-primary hover:bg-primary-hover transition-colors"
               >
                 <Download className="h-4 w-4" />
                 <span>Download {previewReport.format} File</span>

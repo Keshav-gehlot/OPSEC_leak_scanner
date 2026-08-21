@@ -4,12 +4,11 @@ import { SeverityBadge } from '../components/common/SeverityBadge';
 import { 
   Globe2, 
   Server, 
-  ShieldAlert, 
-  ExternalLink, 
   Search, 
-  Lock, 
-  Activity,
-  Layers
+  ExternalLink,
+  ShieldAlert,
+  Lock,
+  Activity
 } from 'lucide-react';
 
 interface IntelligenceProps {
@@ -46,8 +45,8 @@ export const Intelligence: React.FC<IntelligenceProps> = ({ domains }) => {
       </div>
 
       {/* Directory Table */}
-      <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
-        <div className="p-5 border-b border-border bg-sidebar/50 flex flex-wrap items-center justify-between gap-4">
+      <div className="rounded-2xl border border-border bg-surface shadow-card overflow-hidden">
+        <div className="p-5 border-b border-border bg-sidebar/60 flex flex-wrap items-center justify-between gap-4">
           <div className="relative w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
             <input
@@ -55,7 +54,7 @@ export const Intelligence: React.FC<IntelligenceProps> = ({ domains }) => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search domains, environments, IPs..."
-              className="w-full rounded-lg border border-border bg-card pl-9 pr-4 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-border bg-surface pl-9 pr-4 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none font-mono"
             />
           </div>
 
@@ -63,13 +62,15 @@ export const Intelligence: React.FC<IntelligenceProps> = ({ domains }) => {
             <select
               value={filterClass}
               onChange={(e) => setFilterClass(e.target.value)}
-              className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-text-secondary focus:border-primary focus:outline-none"
+              className="rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-text-secondary focus:border-primary focus:outline-none"
             >
               <option value="ALL">All Classifications</option>
               <option value="INTERNAL">Internal</option>
               <option value="VPN">VPN Gateway</option>
               <option value="MONITORING">Monitoring</option>
               <option value="STAGING">Staging</option>
+              <option value="DEVELOPMENT">Development</option>
+              <option value="ADMIN">Admin</option>
               <option value="PUBLIC">Public</option>
             </select>
           </div>
@@ -81,15 +82,16 @@ export const Intelligence: React.FC<IntelligenceProps> = ({ domains }) => {
               <tr>
                 <th className="py-3 px-4">Domain / Hostname</th>
                 <th className="py-3 px-4">Classification</th>
+                <th className="py-3 px-4">Confidence</th>
                 <th className="py-3 px-4">Environment Context</th>
                 <th className="py-3 px-4">Severity</th>
                 <th className="py-3 px-4">Mapped IP Addresses</th>
-                <th className="py-3 px-4">Discovered Findings</th>
+                <th className="py-3 px-4">Associated Findings</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
               {filtered.map((d) => (
-                <tr key={d.id} className="hover:bg-card-hover/80 transition-colors">
+                <tr key={d.id} className="hover:bg-surface-elevated/80 transition-colors">
                   <td className="py-3.5 px-4 font-mono font-bold text-text-primary flex items-center gap-2">
                     <Globe2 className="h-4 w-4 text-secondary flex-shrink-0" />
                     <span>{d.domain}</span>
@@ -97,14 +99,18 @@ export const Intelligence: React.FC<IntelligenceProps> = ({ domains }) => {
 
                   <td className="py-3.5 px-4">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase ${
-                      d.classification === 'INTERNAL' || d.classification === 'VPN'
+                      d.classification === 'INTERNAL' || d.classification === 'VPN' || d.classification === 'ADMIN'
                         ? 'bg-critical/15 text-critical border border-critical/30'
-                        : d.classification === 'MONITORING' || d.classification === 'STAGING'
+                        : d.classification === 'MONITORING' || d.classification === 'STAGING' || d.classification === 'DEVELOPMENT'
                         ? 'bg-high/15 text-high border border-high/30'
                         : 'bg-sidebar text-text-muted border border-border'
                     }`}>
                       {d.classification}
                     </span>
+                  </td>
+
+                  <td className="py-3.5 px-4 font-mono text-text-primary font-semibold">
+                    {d.confidence ? `${Math.round(d.confidence * 100)}%` : '90%'}
                   </td>
 
                   <td className="py-3.5 px-4 font-medium text-text-secondary">{d.environment}</td>

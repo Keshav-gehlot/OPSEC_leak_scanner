@@ -19,11 +19,12 @@ import { RiskScoreBadge } from '../components/common/RiskScoreBadge';
 import { RiskTrendChart } from '../components/dashboard/RiskTrendChart';
 import { ExposureBreakdown } from '../components/dashboard/ExposureBreakdown';
 import { Finding } from '../types';
+import { PageId } from '../components/layout/Sidebar';
 
 interface DashboardProps {
   findings: Finding[];
   onSelectFinding: (finding: Finding) => void;
-  onNavigatePage: (pageId: any) => void;
+  onNavigatePage: (pageId: PageId, filter?: string) => void;
   onStartNewScan: () => void;
 }
 
@@ -54,7 +55,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </span>
           </div>
           <p className="text-sm text-text-muted mt-1.5 max-w-2xl">
-            Continuous operational-security intelligence monitoring across Git repositories, identity graphs, and digital media.
+            Monitor operational-security exposure across your repositories and digital artifacts.
           </p>
         </div>
 
@@ -70,39 +71,39 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* 5 KPI Metric Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <MetricCard
-          label="Critical Risk"
+          label="Critical Findings"
           value={criticalCount.toString().padStart(2, '0')}
           icon={Flame}
           severityColor="critical"
-          trend={{ value: '-1 resolved', direction: 'down', isPositive: true }}
-          onClick={() => onNavigatePage('findings')}
+          trend={{ value: '+1 from previous scan', direction: 'up', isPositive: false }}
+          onClick={() => onNavigatePage('findings', 'CRITICAL')}
         />
 
         <MetricCard
-          label="High Risk"
+          label="High Findings"
           value={highCount.toString().padStart(2, '0')}
           icon={ShieldAlert}
           severityColor="high"
-          trend={{ value: '2 active in HEAD', direction: 'neutral' }}
-          onClick={() => onNavigatePage('findings')}
+          trend={{ value: '-1 from previous scan', direction: 'down', isPositive: true }}
+          onClick={() => onNavigatePage('findings', 'HIGH')}
         />
 
         <MetricCard
-          label="Medium Risk"
+          label="Medium Findings"
           value={mediumCount.toString().padStart(2, '0')}
           icon={AlertTriangle}
           severityColor="medium"
           trend={{ value: 'Stable', direction: 'neutral' }}
-          onClick={() => onNavigatePage('findings')}
+          onClick={() => onNavigatePage('findings', 'MEDIUM')}
         />
 
         <MetricCard
-          label="Low Risk"
+          label="Low Findings"
           value={lowCount.toString().padStart(2, '0')}
           icon={CheckCircle2}
           severityColor="low"
-          trend={{ value: '4 suppressed', direction: 'neutral' }}
-          onClick={() => onNavigatePage('findings')}
+          trend={{ value: '+2 from previous scan', direction: 'up', isPositive: false }}
+          onClick={() => onNavigatePage('findings', 'LOW')}
         />
 
         <MetricCard
@@ -110,8 +111,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
           value="7.8 / 10"
           icon={Activity}
           severityColor="primary"
-          trend={{ value: '-1.0 pt 7d', direction: 'down', isPositive: true }}
-          subtext="High Exposure"
+          trend={{ value: '-1.0 pt reduction', direction: 'down', isPositive: true }}
+          onClick={() => onNavigatePage('baseline')}
         />
       </div>
 
@@ -121,16 +122,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <RiskTrendChart />
         </div>
         <div className="lg:col-span-1">
-          <ExposureBreakdown />
+          <ExposureBreakdown
+            onNavigateToIdentity={() => onNavigatePage('identity')}
+            onNavigateToFindings={() => onNavigatePage('findings')}
+          />
         </div>
       </div>
 
       {/* Recent Discovered Findings Section */}
-      <div className="rounded-xl border border-border bg-card p-6 shadow-card space-y-4">
+      <div className="rounded-2xl border border-border bg-surface p-6 shadow-card space-y-4">
         <div className="flex items-center justify-between border-b border-border/70 pb-4">
           <div>
-            <h3 className="text-base font-bold text-text-primary tracking-tight">Recent High-Priority Findings</h3>
-            <p className="text-xs text-text-muted mt-0.5">Top-ranked security exposures requiring immediate analyst remediation</p>
+            <h3 className="text-base font-bold text-text-primary tracking-tight">Recent Discovered Findings</h3>
+            <p className="text-xs text-text-muted mt-0.5">Top-ranked security exposures discovered across active scans</p>
           </div>
           <button
             onClick={() => onNavigatePage('findings')}
@@ -141,39 +145,67 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </button>
         </div>
 
-        {/* Findings Row Items */}
-        <div className="divide-y divide-border/60">
-          {recentFindings.map((finding) => (
-            <div
-              key={finding.id}
-              onClick={() => onSelectFinding(finding)}
-              className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-card-hover/60 -mx-6 px-6 transition-colors cursor-pointer group"
-            >
-              <div className="flex items-start gap-4">
-                <SeverityBadge severity={finding.severity} size="md" />
-                <div>
-                  <h4 className="text-sm font-bold text-text-primary group-hover:text-primary transition-colors">
-                    {finding.title}
-                  </h4>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-text-muted mt-1 font-mono">
-                    <span>{finding.origin}</span>
-                    {finding.mitreTechnique && (
-                      <span className="text-primary font-semibold">[{finding.mitreTechnique}]</span>
-                    )}
-                    <span>Confidence {Math.round(finding.confidence * 100)}%</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 self-end sm:self-center">
-                <RiskScoreBadge score={finding.riskScore} size="md" />
-                <span className="text-xs text-text-secondary group-hover:text-text-primary transition-colors flex items-center gap-1">
-                  <span>Investigate</span>
-                  <ArrowRight className="h-3.5 w-3.5 text-text-muted group-hover:text-primary transition-transform group-hover:translate-x-1" />
-                </span>
-              </div>
-            </div>
-          ))}
+        {/* Findings Table List */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="border-b border-border text-text-muted font-mono uppercase text-[10px] tracking-wider">
+              <tr>
+                <th className="py-2.5 px-3">Severity</th>
+                <th className="py-2.5 px-3">Finding</th>
+                <th className="py-2.5 px-3">Category</th>
+                <th className="py-2.5 px-3">Confidence</th>
+                <th className="py-2.5 px-3">Exposure</th>
+                <th className="py-2.5 px-3">Risk</th>
+                <th className="py-2.5 px-3">Status</th>
+                <th className="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {recentFindings.map((finding) => (
+                <tr
+                  key={finding.id}
+                  onClick={() => onSelectFinding(finding)}
+                  className="hover:bg-surface-elevated/70 cursor-pointer transition-colors group"
+                >
+                  <td className="py-3 px-3">
+                    <SeverityBadge severity={finding.severity} size="sm" />
+                  </td>
+                  <td className="py-3 px-3 max-w-xs">
+                    <div className="font-semibold text-text-primary group-hover:text-primary transition-colors truncate">
+                      {finding.title}
+                    </div>
+                    <div className="text-[11px] text-text-muted font-mono truncate">{finding.origin}</div>
+                  </td>
+                  <td className="py-3 px-3 capitalize text-text-secondary">{finding.category}</td>
+                  <td className="py-3 px-3 font-mono font-semibold text-text-primary">
+                    {Math.round(finding.confidence * 100)}%
+                  </td>
+                  <td className="py-3 px-3 font-mono text-[11px] text-text-secondary">
+                    {finding.lifecycleStatus ? finding.lifecycleStatus.replace('_', ' ') : 'Active'}
+                  </td>
+                  <td className="py-3 px-3">
+                    <RiskScoreBadge score={finding.riskScore} size="sm" />
+                  </td>
+                  <td className="py-3 px-3">
+                    <span
+                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border uppercase ${
+                        finding.status === 'OPEN'
+                          ? 'bg-critical/15 text-critical border-critical/30'
+                          : finding.status === 'IN_REVIEW'
+                          ? 'bg-medium/15 text-medium border-medium/30'
+                          : 'bg-low/15 text-low border-low/30'
+                      }`}
+                    >
+                      {finding.status}
+                    </span>
+                  </td>
+                  <td className="py-3 px-3 text-right text-primary font-medium">
+                    Investigate →
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

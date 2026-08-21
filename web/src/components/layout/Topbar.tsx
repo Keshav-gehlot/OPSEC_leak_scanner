@@ -1,72 +1,103 @@
 import React from 'react';
 import { 
-  Plus, 
   Search, 
+  Plus, 
+  Radio, 
   Bell, 
-  FolderGit2, 
-  ShieldAlert, 
-  Terminal, 
-  CheckCircle2, 
-  UserCheck 
+  User, 
+  ChevronRight, 
+  ShieldCheck, 
+  SlidersHorizontal,
+  Command
 } from 'lucide-react';
+import { PageId } from './Sidebar';
 
 interface TopbarProps {
+  activePage: PageId;
   onStartNewScan: () => void;
-  onSearchChange?: (query: string) => void;
-  searchQuery?: string;
-  activeTarget?: string;
+  onOpenCommandPalette: () => void;
+  collapsed?: boolean;
 }
 
 export const Topbar: React.FC<TopbarProps> = ({
+  activePage,
   onStartNewScan,
-  onSearchChange,
-  searchQuery = '',
-  activeTarget = 'Keshav-gehlot/OPSEC_leak_scanner',
+  onOpenCommandPalette,
+  collapsed = false,
 }) => {
-  return (
-    <header className="h-16 border-b border-border bg-sidebar/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
-      {/* Search and Target Indicator */}
-      <div className="flex items-center gap-6 flex-1 max-w-2xl">
-        <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => onSearchChange?.(e.target.value)}
-            placeholder="Search findings, commits, secrets..."
-            className="w-full rounded-lg border border-border bg-card/80 pl-9 pr-4 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-          />
-        </div>
+  const pageTitles: Record<PageId, { title: string; breadcrumb: string }> = {
+    dashboard: { title: 'Security Overview', breadcrumb: 'Dashboard' },
+    scans: { title: 'Audit Runs & Jobs', breadcrumb: 'Scans' },
+    findings: { title: 'Findings Explorer & Triage', breadcrumb: 'Findings' },
+    identity: { title: 'Identity Intelligence Graph', breadcrumb: 'Identity Correlation' },
+    'git-forensics': { title: 'Git Commit Forensics', breadcrumb: 'Forensics' },
+    baseline: { title: 'Baseline & Drift Analysis', breadcrumb: 'CI/CD Baseline' },
+    intelligence: { title: 'Domain & Infrastructure Recon', breadcrumb: 'Threat Intelligence' },
+    reports: { title: 'Reports & Export Dossiers', breadcrumb: 'Reports Center' },
+    settings: { title: 'Settings & Identity Profiles', breadcrumb: 'System Settings' },
+  };
 
-        <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-card/60 text-xs">
-          <FolderGit2 className="h-4 w-4 text-secondary" />
-          <span className="text-text-muted">Target:</span>
-          <span className="font-mono font-semibold text-text-primary">{activeTarget}</span>
-          <span className="h-1.5 w-1.5 rounded-full bg-low ml-1" />
+  const current = pageTitles[activePage] || { title: 'Overview', breadcrumb: 'Dashboard' };
+
+  return (
+    <header
+      className={`fixed top-0 right-0 z-20 flex h-16 items-center justify-between border-b border-border/80 bg-sidebar/90 px-6 backdrop-blur-md transition-all duration-300 ${
+        collapsed ? 'left-20' : 'left-64'
+      }`}
+    >
+      {/* Left: Breadcrumbs & Page Title */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 text-xs text-text-muted font-medium">
+          <span>OPSEC</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <span className="text-text-secondary">{current.breadcrumb}</span>
         </div>
+        <span className="h-4 w-[1px] bg-border hidden sm:block" />
+        <h2 className="text-sm font-bold text-text-primary hidden sm:block">
+          {current.title}
+        </h2>
       </div>
 
-      {/* Actions & Profile */}
-      <div className="flex items-center gap-4">
+      {/* Center & Right Controls */}
+      <div className="flex items-center gap-3">
+        {/* Global Search Bar with Ctrl+K trigger */}
         <button
-          onClick={onStartNewScan}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-primary-hover text-white text-xs font-semibold shadow-glow-primary hover:opacity-95 transition-all active:scale-95"
+          onClick={onOpenCommandPalette}
+          className="flex items-center gap-3 rounded-xl border border-border bg-surface px-3.5 py-1.5 text-xs text-text-muted hover:border-primary/50 hover:text-text-secondary transition-all w-52 sm:w-72 justify-between group shadow-sm"
         >
-          <Plus className="h-4 w-4" />
-          <span>New Scan</span>
+          <div className="flex items-center gap-2">
+            <Search className="h-3.5 w-3.5 text-text-muted group-hover:text-primary transition-colors" />
+            <span className="truncate">Search findings, repos, rules...</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-surface-elevated border border-border text-text-muted group-hover:text-primary">
+              Ctrl K
+            </span>
+          </div>
         </button>
 
-        <div className="h-5 w-[1px] bg-border mx-1" />
-
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 border border-primary/40 text-primary font-bold text-xs font-mono">
-            KG
-          </div>
-          <div className="hidden sm:block text-left">
-            <p className="text-xs font-semibold text-text-primary leading-none">Security Analyst</p>
-            <p className="text-[10px] text-text-muted mt-0.5">keshav@opsec</p>
-          </div>
+        {/* Live Engine Status Pill */}
+        <div className="hidden md:flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-mono">
+          <span className="h-2 w-2 rounded-full bg-low animate-pulse" />
+          <span className="text-[11px] font-bold text-text-primary">READY</span>
         </div>
+
+        {/* Notifications Icon */}
+        <button
+          className="p-2 rounded-xl border border-border bg-surface hover:bg-surface-elevated text-text-muted hover:text-text-primary transition-colors"
+          title="Notifications"
+        >
+          <Bell className="h-4 w-4" />
+        </button>
+
+        {/* Primary Action Button */}
+        <button
+          onClick={onStartNewScan}
+          className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-hover px-4 py-2 text-xs font-bold text-white shadow-glow-primary hover:opacity-95 transition-all"
+        >
+          <Plus className="h-3.5 w-3.5 stroke-[3]" />
+          <span className="hidden sm:inline">NEW SCAN</span>
+        </button>
       </div>
     </header>
   );

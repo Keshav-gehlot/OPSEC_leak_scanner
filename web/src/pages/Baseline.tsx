@@ -15,12 +15,14 @@ interface BaselineProps {
   baseline: BaselineComparison;
   onSelectFinding: (finding: Finding) => void;
   onUpdateBaseline: () => void;
+  onExportDiff?: () => void;
 }
 
 export const Baseline: React.FC<BaselineProps> = ({
   baseline,
   onSelectFinding,
   onUpdateBaseline,
+  onExportDiff,
 }) => {
   const [filter, setFilter] = useState<'ALL' | 'NEW' | 'RESOLVED' | 'UNCHANGED'>('ALL');
   const [isUpdating, setIsUpdating] = useState(false);
@@ -56,10 +58,20 @@ export const Baseline: React.FC<BaselineProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {onExportDiff && (
+            <button
+              onClick={onExportDiff}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-surface hover:bg-surface-elevated text-xs font-semibold text-text-primary transition-all"
+            >
+              <Download className="h-4 w-4 text-secondary" />
+              <span>Export Diff</span>
+            </button>
+          )}
+
           <button
             onClick={handleUpdate}
             disabled={isUpdating}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-glow-primary transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-glow-primary transition-all"
           >
             <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
             <span>Update Baseline</span>
@@ -71,8 +83,8 @@ export const Baseline: React.FC<BaselineProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div 
           onClick={() => setFilter('NEW')}
-          className={`cursor-pointer rounded-xl border p-5 transition-all ${
-            filter === 'NEW' ? 'border-critical bg-critical/15' : 'border-border bg-card hover:bg-card-hover'
+          className={`cursor-pointer rounded-2xl border p-5 transition-all ${
+            filter === 'NEW' ? 'border-critical bg-critical/15' : 'border-border bg-surface hover:bg-surface-elevated'
           }`}
         >
           <div className="flex items-center justify-between">
@@ -80,15 +92,17 @@ export const Baseline: React.FC<BaselineProps> = ({
             <PlusCircle className="h-5 w-5 text-critical" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold font-mono text-critical">{baseline.newCount}</span>
+            <span className="text-3xl font-extrabold font-mono text-critical">
+              {baseline.newCount.toString().padStart(2, '0')}
+            </span>
             <span className="text-xs text-text-muted">Requires fix before merge</span>
           </div>
         </div>
 
         <div 
           onClick={() => setFilter('RESOLVED')}
-          className={`cursor-pointer rounded-xl border p-5 transition-all ${
-            filter === 'RESOLVED' ? 'border-low bg-low/15' : 'border-border bg-card hover:bg-card-hover'
+          className={`cursor-pointer rounded-2xl border p-5 transition-all ${
+            filter === 'RESOLVED' ? 'border-low bg-low/15' : 'border-border bg-surface hover:bg-surface-elevated'
           }`}
         >
           <div className="flex items-center justify-between">
@@ -96,15 +110,17 @@ export const Baseline: React.FC<BaselineProps> = ({
             <CheckCircle2 className="h-5 w-5 text-low" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold font-mono text-low">{baseline.resolvedCount}</span>
+            <span className="text-3xl font-extrabold font-mono text-low">
+              {baseline.resolvedCount.toString().padStart(2, '0')}
+            </span>
             <span className="text-xs text-text-muted">Fixed in current branch</span>
           </div>
         </div>
 
         <div 
           onClick={() => setFilter('UNCHANGED')}
-          className={`cursor-pointer rounded-xl border p-5 transition-all ${
-            filter === 'UNCHANGED' ? 'border-primary bg-primary/15' : 'border-border bg-card hover:bg-card-hover'
+          className={`cursor-pointer rounded-2xl border p-5 transition-all ${
+            filter === 'UNCHANGED' ? 'border-primary bg-primary/15' : 'border-border bg-surface hover:bg-surface-elevated'
           }`}
         >
           <div className="flex items-center justify-between">
@@ -112,17 +128,19 @@ export const Baseline: React.FC<BaselineProps> = ({
             <MinusCircle className="h-5 w-5 text-text-muted" />
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold font-mono text-text-primary">{baseline.unchangedCount}</span>
+            <span className="text-3xl font-extrabold font-mono text-text-primary">
+              {baseline.unchangedCount.toString().padStart(2, '0')}
+            </span>
             <span className="text-xs text-text-muted">Known tracked items</span>
           </div>
         </div>
       </div>
 
       {/* Visual Drift Distribution Bar */}
-      <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+      <div className="rounded-2xl border border-border bg-surface p-5 space-y-3">
         <div className="flex justify-between items-center text-xs font-mono">
           <span className="text-text-muted uppercase">Delta Distribution</span>
-          <span className="text-text-secondary">
+          <span className="text-text-secondary font-semibold">
             {Math.round((baseline.newCount / (baseline.newCount + baseline.resolvedCount + baseline.unchangedCount)) * 100)}% New Risk
           </span>
         </div>
@@ -134,15 +152,15 @@ export const Baseline: React.FC<BaselineProps> = ({
       </div>
 
       {/* Diff Table */}
-      <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden">
+      <div className="rounded-2xl border border-border bg-surface shadow-card overflow-hidden">
         <div className="p-4 border-b border-border bg-sidebar/50 flex items-center justify-between">
           <h3 className="text-sm font-bold text-text-primary">Baseline Finding Delta List</h3>
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-1.5 text-xs">
             {(['ALL', 'NEW', 'RESOLVED', 'UNCHANGED'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`px-3 py-1 rounded font-mono font-medium transition-all ${
+                className={`px-3 py-1 rounded-lg font-mono font-medium transition-all ${
                   filter === tab ? 'bg-primary text-white font-bold' : 'text-text-muted hover:text-text-primary'
                 }`}
               >
@@ -169,7 +187,7 @@ export const Baseline: React.FC<BaselineProps> = ({
                 <tr
                   key={idx}
                   onClick={() => onSelectFinding(diff.finding)}
-                  className="hover:bg-card-hover/80 cursor-pointer transition-colors"
+                  className="hover:bg-surface-elevated/80 cursor-pointer transition-colors"
                 >
                   <td className="py-3.5 px-4 font-mono font-bold">
                     {diff.diffStatus === 'NEW' && (

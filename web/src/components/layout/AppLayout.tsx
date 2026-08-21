@@ -1,46 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sidebar, PageId } from './Sidebar';
 import { Topbar } from './Topbar';
 
 interface AppLayoutProps {
+  children: React.ReactNode;
   activePage: PageId;
   onSelectPage: (page: PageId) => void;
   onStartNewScan: () => void;
+  onOpenCommandPalette: () => void;
   openFindingsCount?: number;
-  searchQuery?: string;
-  onSearchChange?: (query: string) => void;
-  children: React.ReactNode;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
+  children,
   activePage,
   onSelectPage,
   onStartNewScan,
+  onOpenCommandPalette,
   openFindingsCount,
-  searchQuery,
-  onSearchChange,
-  children,
 }) => {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
-    <div className="flex min-h-screen bg-background text-text-primary">
-      {/* Fixed Sidebar */}
-      <Sidebar 
-        activePage={activePage} 
-        onSelectPage={onSelectPage} 
-        openFindingsCount={openFindingsCount} 
+    <div className="min-h-screen bg-background text-text-primary flex">
+      {/* Collapsible Sidebar */}
+      <Sidebar
+        activePage={activePage}
+        onSelectPage={onSelectPage}
+        openFindingsCount={openFindingsCount}
+        collapsed={collapsed}
+        onToggleCollapse={() => setCollapsed(!collapsed)}
       />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Topbar 
-          onStartNewScan={onStartNewScan} 
-          searchQuery={searchQuery}
-          onSearchChange={onSearchChange}
+      {/* Main Container */}
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${collapsed ? 'pl-20' : 'pl-64'}`}>
+        <Topbar
+          activePage={activePage}
+          onStartNewScan={onStartNewScan}
+          onOpenCommandPalette={onOpenCommandPalette}
+          collapsed={collapsed}
         />
-        <main className="flex-1 p-8 overflow-y-auto bg-grid-pattern min-h-[calc(100vh-4rem)]">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {children}
-          </div>
+
+        {/* Page Content Viewport */}
+        <main className="flex-1 mt-16 p-6 sm:p-8 max-w-7xl w-full mx-auto">
+          {children}
         </main>
       </div>
     </div>

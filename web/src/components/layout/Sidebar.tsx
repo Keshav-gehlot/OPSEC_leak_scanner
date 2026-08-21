@@ -1,18 +1,19 @@
 import React from 'react';
 import { 
-  ShieldAlert, 
+  Shield, 
   LayoutDashboard, 
-  ScanSearch, 
   SearchCode, 
+  ShieldAlert, 
   Network, 
   GitCommit, 
-  Globe2, 
   GitCompare, 
+  Globe2, 
   FileText, 
-  Settings, 
-  Activity,
+  Settings as SettingsIcon,
+  HelpCircle,
+  ChevronLeft,
   ChevronRight,
-  ShieldCheck
+  Radio
 } from 'lucide-react';
 
 export type PageId = 
@@ -21,8 +22,8 @@ export type PageId =
   | 'findings' 
   | 'identity' 
   | 'git-forensics' 
-  | 'intelligence' 
   | 'baseline' 
+  | 'intelligence' 
   | 'reports' 
   | 'settings';
 
@@ -30,106 +31,170 @@ interface SidebarProps {
   activePage: PageId;
   onSelectPage: (page: PageId) => void;
   openFindingsCount?: number;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activePage,
   onSelectPage,
   openFindingsCount = 18,
+  collapsed = false,
+  onToggleCollapse,
 }) => {
-  const navItems: { id: PageId; label: string; icon: React.ElementType; badge?: number; section?: string }[] = [
-    { id: 'dashboard', label: 'Security Overview', icon: LayoutDashboard },
-    { id: 'scans', label: 'Scans & Workflows', icon: ScanSearch },
-    { id: 'findings', label: 'Findings Explorer', icon: SearchCode, badge: openFindingsCount },
-    { id: 'identity', label: 'Identity Graph', icon: Network },
-    { id: 'git-forensics', label: 'Git Forensics', icon: GitCommit },
-    { id: 'intelligence', label: 'Domain & Infra', icon: Globe2 },
-    { id: 'baseline', label: 'Baseline & Drift', icon: GitCompare },
-    { id: 'reports', label: 'Reports & Exports', icon: FileText },
-    { id: 'settings', label: 'Target & Rules', icon: Settings, section: 'Configuration' },
+  const navItems = [
+    { id: 'dashboard' as PageId, label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'scans' as PageId, label: 'Scans', icon: SearchCode },
+    { 
+      id: 'findings' as PageId, 
+      label: 'Findings', 
+      icon: ShieldAlert, 
+      badge: openFindingsCount > 0 ? openFindingsCount : undefined,
+      badgeColor: 'bg-critical/15 text-critical border border-critical/30'
+    },
+    { id: 'identity' as PageId, label: 'Identity', icon: Network },
+    { id: 'git-forensics' as PageId, label: 'Git Forensics', icon: GitCommit },
+    { id: 'baseline' as PageId, label: 'Baseline', icon: GitCompare },
+    { id: 'intelligence' as PageId, label: 'Intelligence', icon: Globe2 },
+    { id: 'reports' as PageId, label: 'Reports', icon: FileText },
+  ];
+
+  const secondaryNavItems = [
+    { id: 'settings' as PageId, label: 'Settings', icon: SettingsIcon },
   ];
 
   return (
-    <aside className="w-64 border-r border-border bg-sidebar flex flex-col justify-between h-screen sticky top-0 select-none z-30">
+    <aside
+      className={`fixed left-0 top-0 bottom-0 z-30 flex flex-col border-r border-border bg-sidebar transition-all duration-300 ${
+        collapsed ? 'w-20' : 'w-64'
+      }`}
+    >
       {/* Brand Header */}
-      <div>
-        <div className="p-6 border-b border-border/70 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-secondary p-0.5 shadow-glow-primary">
-            <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-sidebar">
-              <ShieldAlert className="h-5 w-5 text-primary" />
-            </div>
+      <div className="flex h-16 items-center justify-between px-4 border-b border-border/80">
+        <div className="flex items-center gap-3 overflow-hidden cursor-pointer" onClick={() => onSelectPage('dashboard')}>
+          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-primary to-secondary text-white shadow-glow-primary">
+            <Shield className="h-5 w-5 fill-white/15" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold tracking-wider text-base text-text-primary font-mono">OPSEC</span>
-              <span className="text-[10px] uppercase font-bold tracking-widest px-1.5 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">v0.6</span>
+          {!collapsed && (
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-extrabold tracking-wider text-text-primary uppercase font-mono">
+                OPSEC SCANNER
+              </span>
+              <span className="text-[10px] text-text-muted font-medium truncate">
+                Intelligence Platform
+              </span>
             </div>
-            <p className="text-[11px] font-medium text-text-muted">Intelligence Platform</p>
-          </div>
+          )}
         </div>
 
-        {/* Navigation Section */}
-        <div className="p-3 space-y-1">
-          <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-text-muted">
-            Operations Center
-          </div>
+        {onToggleCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            className="p-1 rounded-lg hover:bg-surface text-text-muted hover:text-text-primary transition-colors"
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+        )}
+      </div>
 
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activePage === item.id;
-
-            return (
-              <React.Fragment key={item.id}>
-                {item.section && (
-                  <div className="px-3 pt-4 pb-1 text-[10px] font-bold uppercase tracking-wider text-text-muted">
-                    {item.section}
-                  </div>
-                )}
+      {/* Main Navigation */}
+      <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+        <div className="space-y-1">
+          {!collapsed && (
+            <span className="px-3 text-[10px] font-mono font-bold uppercase tracking-wider text-text-muted">
+              Security Center
+            </span>
+          )}
+          <nav className="mt-2 space-y-1">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activePage === item.id;
+              return (
                 <button
+                  key={item.id}
                   onClick={() => onSelectPage(item.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-medium transition-all group ${
+                  title={collapsed ? item.label : undefined}
+                  className={`w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all group ${
                     isActive
-                      ? 'bg-primary/15 text-primary border border-primary/30 shadow-sm font-semibold'
-                      : 'text-text-secondary hover:bg-card-hover hover:text-text-primary border border-transparent'
+                      ? 'bg-primary/15 text-primary border border-primary/30 shadow-glow-primary'
+                      : 'text-text-secondary hover:bg-surface-elevated/70 hover:text-text-primary'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-primary' : 'text-text-muted group-hover:text-text-primary'}`} />
-                    <span>{item.label}</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon
+                      className={`h-4 w-4 flex-shrink-0 transition-colors ${
+                        isActive ? 'text-primary' : 'text-text-muted group-hover:text-text-primary'
+                      }`}
+                    />
+                    {!collapsed && <span className="truncate">{item.label}</span>}
                   </div>
 
-                  {item.badge !== undefined && (
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
-                      isActive ? 'bg-primary text-white' : 'bg-critical/20 text-critical border border-critical/30'
-                    }`}>
+                  {!collapsed && item.badge !== undefined && (
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${item.badgeColor}`}>
                       {item.badge}
                     </span>
                   )}
                 </button>
-              </React.Fragment>
-            );
-          })}
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Secondary Navigation */}
+        <div className="space-y-1 pt-4 border-t border-border/60">
+          {!collapsed && (
+            <span className="px-3 text-[10px] font-mono font-bold uppercase tracking-wider text-text-muted">
+              System
+            </span>
+          )}
+          <nav className="mt-2 space-y-1">
+            {secondaryNavItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activePage === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onSelectPage(item.id)}
+                  title={collapsed ? item.label : undefined}
+                  className={`w-full flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-all group ${
+                    isActive
+                      ? 'bg-primary/15 text-primary border border-primary/30'
+                      : 'text-text-secondary hover:bg-surface-elevated/70 hover:text-text-primary'
+                  }`}
+                >
+                  <Icon
+                    className={`h-4 w-4 flex-shrink-0 transition-colors ${
+                      isActive ? 'text-primary' : 'text-text-muted group-hover:text-text-primary'
+                    }`}
+                  />
+                  {!collapsed && <span className="truncate">{item.label}</span>}
+                </button>
+              );
+            })}
+          </nav>
         </div>
       </div>
 
-      {/* Engine Status / Footer */}
-      <div className="p-4 border-t border-border/70 bg-background/40">
-        <div className="rounded-lg border border-border p-3 bg-card/60">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-low opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-low"></span>
+      {/* Footer Status & Version */}
+      <div className="p-3 border-t border-border/80 bg-sidebar/50">
+        {!collapsed ? (
+          <div className="rounded-xl border border-border/60 bg-surface/70 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[11px] font-mono font-bold text-text-secondary">
+                <Radio className="h-3 w-3 text-low animate-pulse" />
+                <span>ENGINE LIVE</span>
               </span>
-              <span className="font-semibold text-text-primary">Engine Active</span>
+              <span className="text-[10px] font-mono text-text-muted">v0.6.0</span>
             </div>
-            <span className="text-[10px] font-mono text-low font-bold">READY</span>
+            <p className="text-[10px] text-text-muted font-mono truncate">Keshav-gehlot / main</p>
           </div>
-          <div className="mt-2 text-[11px] text-text-muted flex justify-between">
-            <span>Target: Keshav-gehlot</span>
-            <span className="font-mono text-text-secondary">8 anchors</span>
+        ) : (
+          <div className="flex flex-col items-center gap-1 py-1" title="Engine Live v0.6.0">
+            <Radio className="h-3 w-3 text-low animate-pulse" />
+            <span className="text-[9px] font-mono text-text-muted">v0.6</span>
           </div>
-        </div>
+        )}
       </div>
     </aside>
   );
